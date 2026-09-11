@@ -108,10 +108,13 @@ classDiagram
     GatewayPagamentoExterno ..|> IGatewayPagamento : implementa
     RepositorioUsuarios ..|> IRepositorioUsuarios : implementa
 
-    class ServicoAssinatura,Assinatura,Recibo dominio;
-    class IGatewayPagamento,IRepositorioUsuarios interface;
-    class GatewayPagamentoExterno externo;
-    class RepositorioUsuarios externo;
+    class ServicoAssinatura dominio
+    class Assinatura dominio
+    class Recibo dominio
+    class IGatewayPagamento interface
+    class IRepositorioUsuarios interface
+    class GatewayPagamentoExterno externo
+    class RepositorioUsuarios externo
 ```
 
 ---
