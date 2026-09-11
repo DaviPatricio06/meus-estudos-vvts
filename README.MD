@@ -604,6 +604,10 @@ Ao executar o fluxo completo pela primeira vez, o time descobre que `APIGateway`
 
 ```mermaid
 graph TD
+    classDef padrao fill:#eaf2ff,stroke:#4f46e5,color:#111827;
+    classDef externo fill:#dfeafc,stroke:#4f46e5,color:#111827;
+    classDef ausencia fill:#f3f4f6,stroke:#64748b,color:#111827,stroke-dasharray: 5 5;
+
     AppCliente["AppCliente"] --> APIGateway["APIGateway"]
     APIGateway --> ServicoAutenticacao["ServicoAutenticacao"]
     APIGateway --> ServicoAssinatura["ServicoAssinatura"]
@@ -611,13 +615,8 @@ graph TD
     ServicoAssinatura --> GatewayPagamentoExterno["GatewayPagamentoExterno"]
     ServicoAssinatura --> ServicoNotificacao["ServicoNotificacao"]
 
-    style AppCliente fill:#e8e8e8,stroke:#666
-    style APIGateway fill:#e8e8e8,stroke:#666
-    style ServicoAutenticacao fill:#e8e8e8,stroke:#666
-    style ServicoAssinatura fill:#e8e8e8,stroke:#666
-    style RepositorioUsuarios fill:#e8e8e8,stroke:#666
-    style GatewayPagamentoExterno fill:#f5e0e0,stroke:#a33
-    style ServicoNotificacao fill:#e8e8e8,stroke:#666
+    class AppCliente,APIGateway,ServicoAutenticacao,ServicoAssinatura,RepositorioUsuarios,ServicoNotificacao padrao;
+    class GatewayPagamentoExterno externo;
 ```
 
 *Todos os componentes aparecem no mesmo nível de cor (cinza), pois nenhum é "isolado" — todos entram juntos na integração. `GatewayPagamentoExterno` é destacado apenas por ser o agente externo (não por status de integração diferenciado).*
@@ -732,14 +731,16 @@ sequenceDiagram
 
 ```mermaid
 graph TD
+    classDef padrao fill:#eaf2ff,stroke:#4f46e5,color:#111827;
+    classDef real fill:#eaf2ff,stroke:#4f46e5,color:#111827;
+    classDef ausente fill:#f3f4f6,stroke:#64748b,color:#111827,stroke-dasharray: 5 5;
+
     Driver["DriverServicoAssinatura (Driver)"] -->|chama| Repo["RepositorioUsuarios (real)"]
     Driver -->|chama| Notif["ServicoNotificacao (real)"]
     Ausente["ServicoAssinatura (ainda nao disponivel)"] -.->|substituido por| Driver
 
-    style Driver fill:#e0e8f5,stroke:#357
-    style Repo fill:#e8f5e0,stroke:#3a3
-    style Notif fill:#e8f5e0,stroke:#3a3
-    style Ausente fill:#f0f0f0,stroke:#999,stroke-dasharray: 5 5
+    class Driver,Repo,Notif real;
+    class Ausente ausente;
 ```
 
 ### Explicação Textual Correlacionada ao Diagrama
@@ -1358,15 +1359,18 @@ O teste é encerrado quando a taxa de erros ultrapassa 50% das requisições ou 
 
 ```mermaid
 graph TD
+    classDef padrao fill:#eaf2ff,stroke:#4f46e5,color:#111827;
+    classDef infra fill:#dfeafc,stroke:#4f46e5,color:#111827;
+    classDef monitor fill:#f3f4f6,stroke:#64748b,color:#111827;
+
     Gerador["Gerador de Carga (simula usuarios simultaneos)"] -->|requisicoes crescentes| ServicoStreaming["ServicoStreaming"]
     ServicoStreaming --> CDN["CDN"]
     ServicoStreaming --> Monitor["Monitoramento (latencia, erros, CPU, memoria)"]
     CDN --> Monitor
 
-    style Gerador fill:#eaf2ff,stroke:#4f46e5,color:#111827
-    style ServicoStreaming fill:#eaf2ff,stroke:#4f46e5,color:#111827
-    style CDN fill:#dfeafc,stroke:#4f46e5,color:#111827
-    style Monitor fill:#f3f4f6,stroke:#64748b,color:#111827
+    class Gerador,ServicoStreaming padrao;
+    class CDN infra;
+    class Monitor monitor;
 ```
 
 ### Diferença Entre Stress Testing e Performance Testing
@@ -1400,6 +1404,10 @@ O `ServicoStreaming` e o `ServicoAssinatura` são avaliados sob uma carga consid
 
 ```mermaid
 graph TD
+    classDef padrao fill:#eaf2ff,stroke:#4f46e5,color:#111827;
+    classDef infra fill:#dfeafc,stroke:#4f46e5,color:#111827;
+    classDef monitor fill:#f3f4f6,stroke:#64748b,color:#111827;
+
     Cliente["Cliente/Gerador de Carga (carga representativa)"] --> Gateway["APIGateway"]
     Gateway --> Streaming["ServicoStreaming"]
     Gateway --> Assinatura["ServicoAssinatura"]
@@ -1409,13 +1417,9 @@ graph TD
     Assinatura --> Monitor
     Repo --> Monitor
 
-    style Cliente fill:#eaf2ff,stroke:#4f46e5,color:#111827
-    style Gateway fill:#eaf2ff,stroke:#4f46e5,color:#111827
-    style Streaming fill:#eaf2ff,stroke:#4f46e5,color:#111827
-    style Assinatura fill:#eaf2ff,stroke:#4f46e5,color:#111827
-    style CDN fill:#dfeafc,stroke:#4f46e5,color:#111827
-    style Repo fill:#eaf2ff,stroke:#4f46e5,color:#111827
-    style Monitor fill:#f3f4f6,stroke:#64748b,color:#111827
+    class Cliente,Gateway,Streaming,Assinatura,Repo padrao;
+    class CDN infra;
+    class Monitor monitor;
 ```
 
 ### 1. O que Está Sendo Medido
