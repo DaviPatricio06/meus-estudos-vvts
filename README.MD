@@ -15,7 +15,10 @@ A solução principal é composta por:
 - integrações com pagamentos e notificações;
 - infraestrutura de entrega de conteúdo via CDN.
 
+### Diagrama de Visão Geral da Arquitetura
+
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'background': '#f8fafc', 'primaryColor': '#e8f0ff', 'primaryTextColor': '#111827', 'primaryBorderColor': '#4f46e5', 'lineColor': '#475569', 'secondaryColor': '#dbeafe', 'tertiaryColor': '#e0f2fe', 'fontFamily': 'Segoe UI, Arial, sans-serif' }}}%%
 graph TD
     AppCliente["AppCliente"] -->|HTTP/REST| APIGateway["APIGateway"]
 
@@ -32,12 +35,27 @@ graph TD
 
     ServicoStreaming -->|entrega video| CDN["CDN (infraestrutura)"]
 
-    style GatewayPagamentoExterno fill:#f5e0e0,stroke:#a33
-    style CDN fill:#e0e8f5,stroke:#357
+    style AppCliente fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style APIGateway fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style ServicoAutenticacao fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style ServicoCatalogo fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style ServicoAssinatura fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style ServicoStreaming fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style ServicoNotificacao fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style RepositorioUsuarios fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style GatewayPagamentoExterno fill:#dfeafc,stroke:#4f46e5,color:#111827
+    style CDN fill:#dfeafc,stroke:#4f46e5,color:#111827
 ```
 
+### Diagrama de Classes do Serviço de Assinatura
+
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'background': '#f8fafc', 'primaryColor': '#e8f0ff', 'primaryTextColor': '#111827', 'primaryBorderColor': '#4f46e5', 'lineColor': '#475569', 'secondaryColor': '#dbeafe', 'tertiaryColor': '#e0f2fe', 'fontFamily': 'Segoe UI, Arial, sans-serif' }}}%%
 classDiagram
+    classDef dominio fill:#e8f0ff,stroke:#4f46e5,color:#111827;
+    classDef interface fill:#eaf7ff,stroke:#2563eb,color:#111827;
+    classDef externo fill:#edf2ff,stroke:#64748b,color:#111827;
+
     class ServicoAssinatura {
         +criarAssinatura(idUsuario, plano)
         +verificarElegibilidadeRenovacao(assinatura) bool
@@ -89,6 +107,11 @@ classDiagram
     IGatewayPagamento ..> Recibo : retorna
     GatewayPagamentoExterno ..|> IGatewayPagamento : implementa
     RepositorioUsuarios ..|> IRepositorioUsuarios : implementa
+
+    class ServicoAssinatura,Assinatura,Recibo dominio;
+    class IGatewayPagamento,IRepositorioUsuarios interface;
+    class GatewayPagamentoExterno externo;
+    class RepositorioUsuarios externo;
 ```
 
 ---
