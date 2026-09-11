@@ -506,7 +506,7 @@ ServicoAssinatura servico = new ServicoAssinatura(
 
 Assim que o `GatewayPagamentoExterno` estiver disponível em ambiente de homologação (contrato assinado, credenciais de sandbox liberadas), o `StubGatewayPagamento` é removido e a mesma injeção de dependência passa a apontar para a implementação real de `IGatewayPagamento`, sem exigir nenhuma alteração no código de `ServicoAssinatura` — apenas na configuração de montagem do objeto.
 
-### Diagrama (Mermaid)
+### Diagrama de Integração Top-Down com Stub
 
 ```mermaid
 classDiagram
@@ -706,7 +706,7 @@ Nesta etapa, a equipe implementou primeiro os componentes de camada mais baixa: 
 
 `DriverServicoAssinatura` — um componente de teste criado exclusivamente para simular as chamadas que `ServicoAssinatura` faria a `RepositorioUsuarios` e `ServicoNotificacao`.
 
-### Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência do Bottom-Up com Driver
 
 ```mermaid
 sequenceDiagram
@@ -728,7 +728,7 @@ sequenceDiagram
     Note over Driver: Compara resultados obtidos com resultados esperados
 ```
 
-### Diagrama de Componentes (Mermaid)
+### Diagrama de Componentes do Bottom-Up com Driver
 
 ```mermaid
 graph TD
@@ -806,7 +806,7 @@ Uma nova versão do StreamPlay (v2.3.0) acabou de ser implantada no ambiente de 
 | 4. Acesso ao banco/serviço essencial | `RepositorioUsuarios` |
 | 5. Resposta básica do sistema (status HTTP 200) | `APIGateway` |
 
-### Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência do Smoke Test
 
 ```mermaid
 sequenceDiagram
@@ -909,7 +909,7 @@ Para corrigir um bug relatado em produção — assinaturas expiradas ainda perm
 
 Ao rodar novamente o conjunto de testes antigos, a equipe descobre que **RT-02 e RT-03 continuam passando, mas surge uma regressão inesperada**: usuários em período de teste gratuito (`status = "trial"`), que antes conseguiam assistir normalmente, agora são bloqueados pela nova verificação — porque o desenvolvedor só previu os status `"ativa"` e `"cancelada"`/`"expirada"` na nova lógica, esquecendo do status `"trial"`. Ou seja, a correção do bug relatado introduziu um novo defeito em uma funcionalidade que antes funcionava corretamente.
 
-### 7. Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência da Regressão
 
 ```mermaid
 sequenceDiagram
@@ -977,7 +977,7 @@ Para os cenários de sucesso, o usuário deve conseguir assistir a qualquer tít
 
 A funcionalidade é aprovada pelo cliente/usuário se todos os cenários de sucesso (A e B) ocorrerem exatamente como descrito, e todos os cenários de falha (C e D) resultarem em mensagens claras e não bloqueantes — sem qualquer necessidade de conhecimento técnico para o usuário entender o que aconteceu.
 
-### Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência do UAT
 
 ```mermaid
 sequenceDiagram
@@ -1045,7 +1045,7 @@ Relatórios estruturados dos participantes internos, incluindo: passos para repr
 - Ao menos 90% dos participantes internos conseguem completar o fluxo principal (assinar → assistir) sem assistência.
 - Feedback de usabilidade incorporado nas correções mais relevantes antes da liberação para o público externo controlado (Beta).
 
-### Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência do Teste Alfa
 
 ```mermaid
 sequenceDiagram
@@ -1123,7 +1123,7 @@ Usam o aplicativo livremente, no seu dia a dia real, sem roteiro fixo imposto pe
 
 Bugs críticos relatados pelos usuários Beta são priorizados e corrigidos antes do lançamento público. Sugestões recorrentes de usabilidade (ex: "não encontrei o botão de cancelar assinatura") podem gerar ajustes de interface. Métricas de abandono no fluxo de pagamento podem levar a simplificações no processo de contratação antes da versão final ser lançada.
 
-### Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência do Teste Beta
 
 ```mermaid
 sequenceDiagram
@@ -1180,7 +1180,7 @@ Indisponibilidade momentânea do `GatewayPagamentoExterno` (timeout de conexão 
 
 O `ServicoAssinatura` implementa uma política de retry com backoff: tenta novamente a chamada ao `GatewayPagamentoExterno` até 3 vezes, com intervalo crescente entre tentativas. Se todas as tentativas falharem, o sistema marca a assinatura como `"pendente"` no `RepositorioUsuarios` (em vez de perder a solicitação) e agenda uma nova tentativa automática posterior, notificando o usuário de forma clara.
 
-### Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência do Recovery Testing
 
 ```mermaid
 sequenceDiagram
@@ -1281,7 +1281,7 @@ O sistema deve retornar erro de autorização (HTTP 403 — Forbidden) e não ex
 
 Se o sistema validar apenas a autenticidade do token (usuário está logado), mas não verificar se o `idUsuario` do token corresponde ao `idUsuario` da requisição, ele exporia indevidamente dados de terceiros — uma falha clássica de autorização em nível de objeto (Broken Object-Level Authorization).
 
-### Diagrama de Sequência (Mermaid)
+### Diagrama de Sequência do Teste de Segurança
 
 ```mermaid
 sequenceDiagram
@@ -1354,7 +1354,7 @@ Aumento progressivo de latência, seguido de aumento da taxa de erros, e em pata
 
 O teste é encerrado quando a taxa de erros ultrapassa 50% das requisições ou quando o sistema para de responder por mais de 1 minuto hipotético — nesse ponto, a carga é removida e observa-se se o sistema volta a operar normalmente dentro de um tempo aceitável (critério de recuperação, relacionado à seção 4.1).
 
-### Diagrama (Mermaid)
+### Diagrama do Stress Testing
 
 ```mermaid
 graph TD
@@ -1363,8 +1363,10 @@ graph TD
     ServicoStreaming --> Monitor["Monitoramento (latencia, erros, CPU, memoria)"]
     CDN --> Monitor
 
-    style Gerador fill:#e0e8f5,stroke:#357
-    style Monitor fill:#f5f0e0,stroke:#a83
+    style Gerador fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style ServicoStreaming fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style CDN fill:#dfeafc,stroke:#4f46e5,color:#111827
+    style Monitor fill:#f3f4f6,stroke:#64748b,color:#111827
 ```
 
 ### Diferença Entre Stress Testing e Performance Testing
@@ -1394,7 +1396,7 @@ O `ServicoStreaming` e o `ServicoAssinatura` são avaliados sob uma carga consid
 | Latência de rede até a `CDN` | ≤ 150 ms |
 | Capacidade de processamento (`ServicoAssinatura`) | ≥ 100 assinaturas processadas/minuto |
 
-### Diagrama (Mermaid)
+### Diagrama do Performance Testing
 
 ```mermaid
 graph TD
@@ -1407,8 +1409,13 @@ graph TD
     Assinatura --> Monitor
     Repo --> Monitor
 
-    style Cliente fill:#e0e8f5,stroke:#357
-    style Monitor fill:#f5f0e0,stroke:#a83
+    style Cliente fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style Gateway fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style Streaming fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style Assinatura fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style CDN fill:#dfeafc,stroke:#4f46e5,color:#111827
+    style Repo fill:#eaf2ff,stroke:#4f46e5,color:#111827
+    style Monitor fill:#f3f4f6,stroke:#64748b,color:#111827
 ```
 
 ### 1. O que Está Sendo Medido
